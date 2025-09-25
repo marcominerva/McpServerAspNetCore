@@ -21,7 +21,11 @@ var transport = new SseClientTransport(
     new()
     {
         Endpoint = new Uri("https://localhost:7133/mcp"),
-        Name = "Test MCP server"
+        Name = "Test MCP server",
+        AdditionalHeaders = new Dictionary<string, string>
+        {
+            ["x-api-key"] = "f1I7S5GXa4wQDgLQWgz0"
+        }
     });
 
 await using var mcpClient = await McpClientFactory.CreateAsync(transport);

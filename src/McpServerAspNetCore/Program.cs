@@ -2,12 +2,15 @@ using System.ComponentModel;
 using Microsoft.Net.Http.Headers;
 using ModelContextProtocol.Server;
 using SimpleAuthentication;
+using SimpleAuthentication.ApiKey;
 using SimpleAuthentication.JwtBearer;
 using TinyHelpers.AspNetCore.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddHttpContextAccessor();
+
 builder.Services
     .AddSimpleAuthentication(builder.Configuration)
     .AddMcp();
@@ -60,14 +63,11 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapMcp("/mcp");
-//.RequireAuthorization(
-///*
-//policy =>
-//{
-//    policy.RequireAuthenticatedUser().AddAuthenticationSchemes(ApiKeyDefaults.AuthenticationScheme);
-//}*/
-//);
+app.MapMcp("/mcp")
+.RequireAuthorization(policy =>
+{
+    policy.RequireAuthenticatedUser().AddAuthenticationSchemes(ApiKeyDefaults.AuthenticationScheme);
+});
 
 app.MapGet("/debug/routes", (IEnumerable<EndpointDataSource> endpointSources) =>
 {
@@ -97,7 +97,7 @@ public record class LoginRequest(string UserName, string Password);
 public record class LoginResponse(string Token);
 
 [McpServerToolType]
-public class ServerTools
+public class ServerTools(IHttpContextAccessor httpContextAccessor, ILogger<ServerTools> logger)
 {
     [McpServerTool]
     [Description("Returns the current date and time in UTC format.")]
@@ -107,6 +107,9 @@ public class ServerTools
     [Description("Returns the current date and time of the specified time zone")]
     public DateTime GetLocalNow([Description("The time zone in the IANA format")] string timeZone)
     {
+        var userName = httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "anonymous";
+        logger.LogInformation("User {UserName} is requesting the current time in time zone {TimeZone}", userName, timeZone);
+
         var tz = TimeZoneInfo.FindSystemTimeZoneById(timeZone);
         return TimeZoneInfo.ConvertTime(DateTime.Now, tz);
     }
