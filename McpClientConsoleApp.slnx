@@ -1,7 +1,7 @@
 <Solution>
-  <Folder Name="/Solution Items/">
+   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path="Directory.Build.props" />
   </Folder>
-  <Project Path="src/McpServerAspNetCore/McpServerAspNetCore.csproj" />
+  <Project Path="src/McpClientConsoleApp/McpClientConsoleApp.csproj" />
 </Solution>

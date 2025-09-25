@@ -1,6 +1,0 @@
-@McpServerAspNetCore_HostAddress = http://localhost:5216
-
-GET {{McpServerAspNetCore_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
