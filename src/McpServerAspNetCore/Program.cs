@@ -44,6 +44,8 @@ builder.Services.AddOpenApi(options =>
 {
     options.RemoveServerList();
     options.AddDefaultProblemDetailsResponse();
+
+    options.AddSimpleAuthentication(builder.Configuration);
 });
 
 var app = builder.Build();
