@@ -15,9 +15,7 @@ var azureChatClient = azureOpenAIClient.GetChatClient(Constants.DeploymentName).
 hostBuilder.Services.AddChatClient(azureChatClient)
     .UseFunctionInvocation();
 
-var app = hostBuilder.Build();
-
-var transport = new SseClientTransport(
+var transport = new HttpClientTransport(
     new()
     {
         Endpoint = new Uri("https://localhost:7133/mcp"),
@@ -28,8 +26,10 @@ var transport = new SseClientTransport(
         }
     });
 
-await using var mcpClient = await McpClientFactory.CreateAsync(transport);
+await using var mcpClient = await McpClient.CreateAsync(transport);
 var tools = await mcpClient.ListToolsAsync();
+
+var app = hostBuilder.Build();
 
 var chat = app.Services.GetRequiredService<IChatClient>();
 var history = new List<ChatMessage>();

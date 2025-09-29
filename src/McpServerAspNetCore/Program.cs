@@ -11,8 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddHttpContextAccessor();
 
-builder.Services
-    .AddSimpleAuthentication(builder.Configuration)
+builder.Services.AddSimpleAuthentication(builder.Configuration)
     .AddMcp();
 
 builder.Services.AddMcpServer(options =>
@@ -108,9 +107,9 @@ public class ServerTools(IHttpContextAccessor httpContextAccessor, ILogger<Serve
     public DateTime GetLocalNow([Description("The time zone in the IANA format")] string timeZone)
     {
         var userName = httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "anonymous";
-        logger.LogInformation("User {UserName} is requesting the current time in time zone {TimeZone}", userName, timeZone);
+        logger.LogInformation("User {User} requested local time for time zone {TimeZone}", userName, timeZone);
 
-        var tz = TimeZoneInfo.FindSystemTimeZoneById(timeZone);
-        return TimeZoneInfo.ConvertTime(DateTime.Now, tz);
+        var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timeZone);
+        return TimeZoneInfo.ConvertTime(DateTime.Now, timeZoneInfo);
     }
 }
