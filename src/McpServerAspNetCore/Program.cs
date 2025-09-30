@@ -48,9 +48,10 @@ builder.Services.AddOpenApi(options =>
 });
 
 var app = builder.Build();
-app.UseHttpsRedirection();
 
 // Configure the HTTP request pipeline.
+app.UseHttpsRedirection();
+
 app.MapOpenApi();
 
 app.UseSwaggerUI(options =>
