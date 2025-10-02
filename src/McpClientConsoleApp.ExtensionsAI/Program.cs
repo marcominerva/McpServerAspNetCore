@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using Azure;
 using Azure.AI.OpenAI;
-using McpClientConsoleApp;
+using McpClientConsoleApp.ExtensionsAI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

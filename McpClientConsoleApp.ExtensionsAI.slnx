@@ -4,5 +4,5 @@
       <File Path=".github/copilot-instructions.md" />
     <File Path="Directory.Build.props" />
   </Folder>
-  <Project Path="src/McpClientConsoleApp/McpClientConsoleApp.csproj" />
+  <Project Path="src/McpClientConsoleApp.ExtensionsAI/McpClientConsoleApp.ExtensionsAI.csproj" />
 </Solution>
