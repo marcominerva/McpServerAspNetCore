@@ -7,13 +7,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ModelContextProtocol.Client;
 
-var hostBuilder = Host.CreateApplicationBuilder(args);
+var builder = Host.CreateApplicationBuilder(args);
 
 var azureOpenAIClient = new AzureOpenAIClient(new Uri(Constants.Endpoint), new AzureKeyCredential(Constants.ApiKey));
 var azureChatClient = azureOpenAIClient.GetChatClient(Constants.DeploymentName).AsIChatClient();
 
-hostBuilder.Services.AddChatClient(azureChatClient)
-    .UseFunctionInvocation();
+builder.Services.AddChatClient(azureChatClient).UseFunctionInvocation();
 
 var transport = new HttpClientTransport(
     new()
@@ -29,7 +28,7 @@ var transport = new HttpClientTransport(
 await using var mcpClient = await McpClient.CreateAsync(transport);
 var tools = await mcpClient.ListToolsAsync();
 
-var app = hostBuilder.Build();
+var app = builder.Build();
 
 var chat = app.Services.GetRequiredService<IChatClient>();
 var history = new List<ChatMessage>();
