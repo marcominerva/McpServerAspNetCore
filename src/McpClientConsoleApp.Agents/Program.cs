@@ -37,7 +37,7 @@ var tools = await mcpClient.ListToolsAsync();
 
 var app = builder.Build();
 
-var chat = app.Services.GetRequiredService<AIAgent>();
+var agent = app.Services.GetRequiredService<AIAgent>();
 var history = new List<ChatMessage>();
 
 var options = new ChatClientAgentRunOptions(new()
@@ -54,7 +54,7 @@ while (true)
 
     var answer = new StringBuilder();
 
-    await foreach (var update in chat.RunStreamingAsync(history, options: options))
+    await foreach (var update in agent.RunStreamingAsync(history, options: options))
     {
         Console.Write(update.Text);
         answer.Append(update.Text);
