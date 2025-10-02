@@ -14,16 +14,15 @@ var azureChatClient = azureOpenAIClient.GetChatClient(Constants.DeploymentName).
 
 builder.Services.AddChatClient(azureChatClient).UseFunctionInvocation();
 
-var transport = new HttpClientTransport(
-    new()
+var transport = new HttpClientTransport(new()
+{
+    Endpoint = new Uri("https://localhost:7133/mcp"),
+    Name = "Test MCP server",
+    AdditionalHeaders = new Dictionary<string, string>
     {
-        Endpoint = new Uri("https://localhost:7133/mcp"),
-        Name = "Test MCP server",
-        AdditionalHeaders = new Dictionary<string, string>
-        {
-            ["x-api-key"] = "f1I7S5GXa4wQDgLQWgz0"
-        }
-    });
+        ["x-api-key"] = "f1I7S5GXa4wQDgLQWgz0"
+    }
+});
 
 await using var mcpClient = await McpClient.CreateAsync(transport);
 var tools = await mcpClient.ListToolsAsync();
