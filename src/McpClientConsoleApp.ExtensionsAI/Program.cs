@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.ComponentModel;
+using System.Text;
 using Azure;
 using Azure.AI.OpenAI;
 using McpClientConsoleApp.ExtensionsAI;
@@ -47,8 +48,15 @@ while (true)
         answer.Append(update.Text);
     }
 
+    //var response = await chat.GetResponseAsync<DateTimeInformation>(history, options: new() { Tools = [.. tools] });
+    //Console.WriteLine(response.Text);
+    //answer.AppendLine(response.Text);
+
     history.Add(new(ChatRole.Assistant, answer.ToString()));
 
     Console.WriteLine();
     Console.WriteLine();
 }
+
+public record class DateTimeInformation([property: Description("The current date and time, including the timezone offset")] DateTimeOffset DateTime,
+    [property: Description("The timezone in Windows format. If the response is in IANA format, convert it to Windows format.")] string TimeZone);
