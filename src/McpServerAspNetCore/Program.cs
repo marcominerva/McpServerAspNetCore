@@ -72,10 +72,6 @@ app.MapGet("/debug/routes", (IEnumerable<EndpointDataSource> endpointSources, Cl
 
 app.Run();
 
-public record class LoginRequest(string UserName, string Password);
-
-public record class LoginResponse(string Token);
-
 [McpServerToolType]
 public class DateTimeTools
 {
