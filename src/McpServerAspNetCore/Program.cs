@@ -1,9 +1,8 @@
 using System.ComponentModel;
+using System.Security.Claims;
 using Microsoft.Net.Http.Headers;
 using ModelContextProtocol.Server;
 using SimpleAuthentication;
-using SimpleAuthentication.ApiKey;
-using SimpleAuthentication.JwtBearer;
 using TinyHelpers.AspNetCore.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -61,13 +60,9 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapMcp("/mcp")
-.RequireAuthorization(policy =>
-{
-    policy.RequireAuthenticatedUser().AddAuthenticationSchemes(ApiKeyDefaults.AuthenticationScheme);
-});
+app.MapMcp("/mcp").RequireAuthorization();
 
-app.MapGet("/debug/routes", (IEnumerable<EndpointDataSource> endpointSources) =>
+app.MapGet("/debug/routes", (IEnumerable<EndpointDataSource> endpointSources, ClaimsPrincipal user) =>
 {
     var endpoints = endpointSources.SelectMany(source => source.Endpoints);
     var routes = endpoints.OfType<RouteEndpoint>()
@@ -80,14 +75,6 @@ app.MapGet("/debug/routes", (IEnumerable<EndpointDataSource> endpointSources) =>
     return routes;
 });
 
-app.MapPost("api/auth/login", async (LoginRequest loginRequest, IJwtBearerService jwtBearerService) =>
-{
-    // Check for login rights...
-
-    var token = await jwtBearerService.CreateTokenAsync(loginRequest.UserName);
-    return TypedResults.Ok(new LoginResponse(token));
-});
-
 app.Run();
 
 public record class LoginRequest(string UserName, string Password);
@@ -95,15 +82,15 @@ public record class LoginRequest(string UserName, string Password);
 public record class LoginResponse(string Token);
 
 [McpServerToolType]
-public class ServerTools(IHttpContextAccessor httpContextAccessor, ILogger<ServerTools> logger)
+public class ServerTools()
 {
     [McpServerTool]
     [Description("Returns the current date and time in UTC format.")]
-    public DateTime GetUtcNow() => DateTime.UtcNow;
+    public static DateTime GetUtcNow() => DateTime.UtcNow;
 
     [McpServerTool]
     [Description("Returns the current date and time of the specified time zone")]
-    public DateTime GetLocalNow([Description("The time zone in the IANA format")] string timeZone)
+    public static DateTime GetLocalNow([Description("The time zone in the IANA format")] string timeZone, IHttpContextAccessor httpContextAccessor, ILogger<ServerTools> logger)
     {
         var userName = httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "anonymous";
         logger.LogInformation("User {User} requested local time for time zone {TimeZone}", userName, timeZone);
