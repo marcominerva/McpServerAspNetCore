@@ -15,15 +15,10 @@ builder.Services.AddSimpleAuthentication(builder.Configuration)
 
 builder.Services.AddMcpServer(options =>
 {
-    options.ServerInfo = new()
-    {
-        Name = "MCP Sample Server",
-        Title = "MCP Sample Server",
-        Version = "1.0.0"
-    };
+    options.ServerInfo = new() { Name = "MCP Sample Server", Version = "1.0.0" };
+    options.ServerInstructions = "You are a helpful assistant that provides date and time information.";
 })
-.WithHttpTransport()
-.WithToolsFromAssembly();
+.WithHttpTransport().WithToolsFromAssembly();
 
 builder.Services.AddCors(options =>
 {
@@ -82,18 +77,19 @@ public record class LoginRequest(string UserName, string Password);
 public record class LoginResponse(string Token);
 
 [McpServerToolType]
-public class ServerTools()
+public class DateTimeTools
 {
-    [McpServerTool]
+    [McpServerTool(Name = "get_utc_now", Title = "Returns the current date and time in UTC format")]
     [Description("Returns the current date and time in UTC format.")]
     public static DateTime GetUtcNow() => DateTime.UtcNow;
 
-    [McpServerTool]
-    [Description("Returns the current date and time of the specified time zone")]
-    public static DateTime GetLocalNow([Description("The time zone in the IANA format")] string timeZone, IHttpContextAccessor httpContextAccessor, ILogger<ServerTools> logger)
+    [McpServerTool(Name = "get_local_now", Title = "Returns the current date and time in the specified time zone")]
+    [Description("Returns the current date and time in the specified time zone.")]
+    public static DateTime GetLocalNow([Description("The time zone in IANA format")] string timeZone,
+        IHttpContextAccessor httpContextAccessor, ILogger<TimeService> logger)
     {
         var userName = httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "anonymous";
-        logger.LogInformation("User {User} requested local time for time zone {TimeZone}", userName, timeZone);
+        logger.LogInformation("User {UserName} requested local time for time zone {TimeZone}", userName, timeZone);
 
         var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timeZone);
         return TimeZoneInfo.ConvertTime(DateTime.Now, timeZoneInfo);
