@@ -76,11 +76,11 @@ app.Run();
 public class DateTimeTools
 {
     [McpServerTool(Name = "get_utc_now", Title = "Returns the current date and time in UTC format")]
-    [Description("Returns the current date and time in UTC format.")]
+    [Description("Returns the current date and time in UTC format")]
     public static DateTime GetUtcNow() => DateTime.UtcNow;
 
     [McpServerTool(Name = "get_local_now", Title = "Returns the current date and time in the specified time zone")]
-    [Description("Returns the current date and time in the specified time zone.")]
+    [Description("Returns the current date and time in the specified time zone")]
     public static DateTime GetLocalNow([Description("The time zone in IANA format")] string timeZone, IHttpContextAccessor httpContextAccessor, ILogger<DateTimeTools> logger)
     {
         var userName = httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "anonymous";
