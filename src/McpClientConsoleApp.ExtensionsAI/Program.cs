@@ -18,7 +18,7 @@ builder.Services.AddChatClient(azureChatClient).UseFunctionInvocation();
 var transport = new HttpClientTransport(new()
 {
     Endpoint = new Uri("https://localhost:7133/mcp"),
-    Name = "Test MCP server",
+    Name = "Test MCP client",
     AdditionalHeaders = new Dictionary<string, string>
     {
         ["x-api-key"] = "f1I7S5GXa4wQDgLQWgz0"
