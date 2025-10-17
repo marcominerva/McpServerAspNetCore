@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Net.Http.Headers;
 using ModelContextProtocol.Server;
 using SimpleAuthentication;
@@ -18,6 +19,7 @@ builder.Services.AddMcpServer(options =>
     options.ServerInfo = new() { Name = "MCP Sample Server", Version = "1.0.0" };
     options.ServerInstructions = "You are a helpful assistant that provides date and time information.";
 })
+.AddAuthorizationFilters()
 .WithHttpTransport().WithToolsFromAssembly();
 
 builder.Services.AddCors(options =>
@@ -55,7 +57,7 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapMcp("/mcp").RequireAuthorization();
+app.MapMcp("/mcp");
 
 app.MapGet("/debug/routes", (IEnumerable<EndpointDataSource> endpointSources, ClaimsPrincipal user) =>
 {
@@ -75,15 +77,18 @@ app.Run();
 [McpServerToolType]
 public class DateTimeTools
 {
-    [McpServerTool(Name = "get_utc_now", Title = "Returns the current date and time in UTC format")]
+    [McpServerTool(Name = "get_utc_now", Title = "Returns the current date and time in UTC format", UseStructuredContent = true)]
     [Description("Returns the current date and time in UTC format")]
+    [Authorize]
     public static DateTime GetUtcNow() => DateTime.UtcNow;
 
-    [McpServerTool(Name = "get_local_now", Title = "Returns the current date and time in the specified time zone")]
+    [McpServerTool(Name = "get_local_now", Title = "Returns the current date and time in the specified time zone", UseStructuredContent = true)]
     [Description("Returns the current date and time in the specified time zone")]
-    public static DateTime GetLocalNow([Description("The time zone in IANA format")] string timeZone, IHttpContextAccessor httpContextAccessor, ILogger<DateTimeTools> logger)
+    [Authorize]
+    public static DateTime GetLocalNow([Description("The time zone in IANA format")] string timeZone,
+        ClaimsPrincipal user, ILogger<DateTimeTools> logger)
     {
-        var userName = httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "anonymous";
+        var userName = user.Identity?.Name ?? "Unknown";
         logger.LogInformation("User {UserName} requested local time for time zone {TimeZone}", userName, timeZone);
 
         var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timeZone);

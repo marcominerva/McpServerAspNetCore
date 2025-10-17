@@ -6,6 +6,7 @@ using McpClientConsoleApp.ExtensionsAI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Client;
 
 var builder = Host.CreateApplicationBuilder(args);
@@ -15,20 +16,14 @@ var azureChatClient = azureOpenAIClient.GetChatClient(Constants.DeploymentName).
 
 builder.Services.AddChatClient(azureChatClient).UseFunctionInvocation();
 
-var transport = new HttpClientTransport(new()
-{
-    Endpoint = new Uri("https://localhost:7133/mcp"),
-    Name = "Test MCP client",
-    AdditionalHeaders = new Dictionary<string, string>
-    {
-        ["x-api-key"] = "f1I7S5GXa4wQDgLQWgz0"
-    }
-});
-
-await using var mcpClient = await McpClient.CreateAsync(transport);
-var tools = await mcpClient.ListToolsAsync();
+builder.Services.AddTransient<McpHttpClientDelegatingHandler>();
+builder.Services.AddHttpClient<McpClientHandler>().AddHttpMessageHandler<McpHttpClientDelegatingHandler>()
+    .AddStandardResilienceHandler();
 
 var app = builder.Build();
+
+var mcpClientHandler = app.Services.GetRequiredService<McpClientHandler>();
+var tools = await mcpClientHandler.ListToolsAsync();
 
 var chat = app.Services.GetRequiredService<IChatClient>();
 var history = new List<ChatMessage>();
@@ -60,3 +55,40 @@ while (true)
 
 public record class DateTimeInformation([property: Description("The current date and time, including the timezone offset")] DateTimeOffset DateTime,
     [property: Description("The timezone in Windows format. If the response is in IANA format, convert it to Windows format.")] string TimeZone);
+
+public class McpClientHandler
+{
+    private readonly HttpClientTransport httpClientTransport;
+    private McpClient? mcpClient;
+
+    public McpClientHandler(HttpClient httpClient, ILoggerFactory loggerFactory)
+    {
+        httpClientTransport = new HttpClientTransport(new()
+        {
+            Endpoint = new("https://localhost:7133/mcp"),
+            Name = "Test MCP client"
+        }, httpClient, loggerFactory);
+    }
+
+    public async Task<IEnumerable<McpClientTool>> ListToolsAsync()
+    {
+        mcpClient ??= await McpClient.CreateAsync(httpClientTransport);
+        return await mcpClient.ListToolsAsync();
+    }
+}
+
+public class McpHttpClientDelegatingHandler(ILogger<McpHttpClientDelegatingHandler> logger) :  DelegatingHandler
+{
+    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    {
+        logger.LogInformation("Adding Auth information to request for Url {Uri}...", request.RequestUri);
+
+        request.Headers.Add("x-api-key", "f1I7S5GXa4wQDgLQWgz0");
+
+        request.Headers.Add("x-client-name", "McpClientConsoleApp.ExtensionsAI");
+        request.Headers.Add("x-client-version", "1.0.0");
+        request.Headers.Add("User-Agent", "McpClientConsoleApp.ExtensionsAI/1.0.0");
+
+        return base.SendAsync(request, cancellationToken);
+    }
+}
