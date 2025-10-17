@@ -10,12 +10,11 @@ using ModelContextProtocol.Client;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-// Add a chat client to the service collection.
-builder.Services.AddChatClient((_) => new AzureOpenAIClient(new Uri(Constants.Endpoint), new AzureKeyCredential(Constants.ApiKey))
-        .GetChatClient(Constants.DeploymentName)
-        .AsIChatClient());
+var azureOpenAIClient = new AzureOpenAIClient(new(Constants.Endpoint), new AzureKeyCredential(Constants.ApiKey));
+var azureChatClient = azureOpenAIClient.GetChatClient(Constants.DeploymentName).AsIChatClient();
 
-// Add the AI agent to the service collection.
+// Add the chat client and AI agent to the service collection.
+builder.Services.AddChatClient(azureChatClient);
 builder.Services.AddSingleton<AIAgent>(services => new ChatClientAgent(
     chatClient: services.GetRequiredService<IChatClient>(),
     options: new("You are a useful Assistant."),
@@ -23,8 +22,8 @@ builder.Services.AddSingleton<AIAgent>(services => new ChatClientAgent(
 
 var transport = new HttpClientTransport(new()
 {
-    Endpoint = new Uri("https://localhost:7133/mcp"),
-    Name = "Test MCP server",
+    Endpoint = new("https://localhost:7133/mcp"),
+    Name = "Test MCP client",
     AdditionalHeaders = new Dictionary<string, string>
     {
         ["x-api-key"] = "f1I7S5GXa4wQDgLQWgz0"
@@ -37,11 +36,15 @@ var tools = await mcpClient.ListToolsAsync();
 var app = builder.Build();
 
 var agent = app.Services.GetRequiredService<AIAgent>();
+
+// Without depentency injection.
+//var agent = azureChatClient.CreateAIAgent();
+
 var history = new List<ChatMessage>();
 
 var options = new ChatClientAgentRunOptions(new()
 {
-    Tools = [.. tools.Cast<AITool>()]
+    Tools = [.. tools]
 });
 
 while (true)
