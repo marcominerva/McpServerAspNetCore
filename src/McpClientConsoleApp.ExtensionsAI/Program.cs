@@ -11,7 +11,7 @@ using ModelContextProtocol.Client;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-var azureOpenAIClient = new AzureOpenAIClient(new Uri(Constants.Endpoint), new AzureKeyCredential(Constants.ApiKey));
+var azureOpenAIClient = new AzureOpenAIClient(new(Constants.Endpoint), new AzureKeyCredential(Constants.ApiKey));
 var azureChatClient = azureOpenAIClient.GetChatClient(Constants.DeploymentName).AsIChatClient();
 
 builder.Services.AddChatClient(azureChatClient).UseFunctionInvocation();
@@ -77,7 +77,7 @@ public class McpClientHandler
     }
 }
 
-public class McpHttpClientDelegatingHandler(ILogger<McpHttpClientDelegatingHandler> logger) :  DelegatingHandler
+public class McpHttpClientDelegatingHandler(ILogger<McpHttpClientDelegatingHandler> logger) : DelegatingHandler
 {
     protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {

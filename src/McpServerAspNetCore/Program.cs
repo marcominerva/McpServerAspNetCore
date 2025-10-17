@@ -85,8 +85,7 @@ public class DateTimeTools
     [McpServerTool(Name = "get_local_now", Title = "Returns the current date and time in the specified time zone", UseStructuredContent = true)]
     [Description("Returns the current date and time in the specified time zone")]
     [Authorize]
-    public static DateTime GetLocalNow([Description("The time zone in IANA format")] string timeZone,
-        ClaimsPrincipal user, ILogger<DateTimeTools> logger)
+    public static DateTime GetLocalNow([Description("The time zone in IANA format")] string timeZone, ClaimsPrincipal user, ILogger<DateTimeTools> logger)
     {
         var userName = user.Identity?.Name ?? "Unknown";
         logger.LogInformation("User {UserName} requested local time for time zone {TimeZone}", userName, timeZone);
