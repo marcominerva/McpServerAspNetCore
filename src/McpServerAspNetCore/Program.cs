@@ -33,7 +33,7 @@ builder.Services.AddMcpServer(options =>
     options.ServerInstructions = "You are a helpful assistant that provides weather, date and time information.";
 })
 .AddAuthorizationFilters()
-.WithHttpTransport().WithToolsFromAssembly();
+.WithHttpTransport().WithToolsFromAssembly();   // <-- Tools are defined in the Tools folder in this project
 
 builder.Services.AddCors(options =>
 {
