@@ -1,15 +1,28 @@
-using System.ComponentModel;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
+using System.Text.Json.Serialization;
+using McpServerAspNetCore.Models;
+using McpServerAspNetCore.Services;
 using Microsoft.Net.Http.Headers;
-using ModelContextProtocol.Server;
 using SimpleAuthentication;
+using TinyHelpers.AspNetCore.Extensions;
 using TinyHelpers.AspNetCore.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);
 
 // Add services to the container.
 builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddHttpClient<WeatherService>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration.GetValue<string>("AppSettings:OpenWeatherMapBaseUrl")!);
+});
+
+// Configure JSON options to serialize enums as strings globally.
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 builder.Services.AddSimpleAuthentication(builder.Configuration)
     .AddMcp();
@@ -17,9 +30,9 @@ builder.Services.AddSimpleAuthentication(builder.Configuration)
 builder.Services.AddMcpServer(options =>
 {
     options.ServerInfo = new() { Name = "MCP Sample Server", Version = "1.0.0" };
-    options.ServerInstructions = "You are a helpful assistant that provides date and time information.";
+    options.ServerInstructions = "You are a helpful assistant that provides weather, date and time information.";
 })
-.AddAuthorizationFilters()  // <-- Add authorization support
+.AddAuthorizationFilters()
 .WithHttpTransport().WithToolsFromAssembly();
 
 builder.Services.AddCors(options =>
@@ -39,10 +52,16 @@ builder.Services.AddOpenApi(options =>
     options.AddSimpleAuthentication(builder.Configuration);
 });
 
+builder.Services.AddDefaultProblemDetails();
+builder.Services.AddDefaultExceptionHandler();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.UseHttpsRedirection();
+
+app.UseExceptionHandler();
+app.UseStatusCodePages();
 
 app.MapOpenApi();
 
@@ -72,27 +91,20 @@ app.MapGet("/debug/routes", (IEnumerable<EndpointDataSource> endpointSources, Cl
     return routes;
 });
 
-app.Run();
-
-[McpServerToolType]
-public class DateTimeTools
+app.MapGet("/api/weather/current", async (string city, UnitSystem units = UnitSystem.Metric, string language = "en",
+    WeatherService weatherService = null!, CancellationToken cancellationToken = default) =>
 {
-    [McpServerTool(Name = "get_utc_now", Title = "Returns the current date and time in UTC format", UseStructuredContent = true)]
-    [Description("Returns the current date and time in UTC format")]
-    [McpMeta("category", "Date and Time")]
-    [Authorize]
-    public static DateTime GetUtcNow() => DateTime.UtcNow;
+    var weather = await weatherService.GetCurrentWeatherAsync(city, units, language, cancellationToken);
+    var response = new Weather(weather, units);
 
-    [McpServerTool(Name = "get_local_now", Title = "Returns the current date and time in the specified time zone", UseStructuredContent = true)]
-    [Description("Returns the current date and time in the specified time zone")]
-    [McpMeta("category", "Date and Time")]
-    [Authorize]
-    public static DateTime GetLocalNow([Description("The time zone in IANA format")] string timeZone, ClaimsPrincipal user, ILogger<DateTimeTools> logger)
-    {
-        var userName = user.Identity?.Name ?? "Unknown";
-        logger.LogInformation("User {UserName} requested local time for time zone {TimeZone}", userName, timeZone);
+    return TypedResults.Ok(response);
+});
 
-        var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timeZone);
-        return TimeZoneInfo.ConvertTime(DateTime.Now, timeZoneInfo);
-    }
-}
+app.MapGet("/api/weather/daily", async (string city, int days, UnitSystem units = UnitSystem.Metric, string language = "en",
+    WeatherService weatherService = null!, CancellationToken cancellationToken = default) =>
+{
+    var weather = await weatherService.GetWeatherForecastAsync(city, days, units, language, cancellationToken);
+    return TypedResults.Ok(weather);
+});
+
+app.Run();
