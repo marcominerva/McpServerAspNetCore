@@ -41,16 +41,6 @@ Open `src/McpServerAspNetCore/appsettings.json` and update the `OpenWeatherMapAp
 }
 ```
 
-Alternatively, you can create an `appsettings.local.json` file (which is already configured to be ignored by Git) to keep your API key private:
-
-```json
-{
-    "AppSettings": {
-        "OpenWeatherMapAppId": "YOUR_API_KEY_HERE"
-    }
-}
-```
-
 ### Azure OpenAI Configuration (for Client Apps)
 
 The sample client applications (`McpClientConsoleApp.ExtensionsAI` and `McpClientConsoleApp.Agents`) use Azure OpenAI to demonstrate how to integrate MCP tools with AI agents. To run these clients, you need to configure your Azure OpenAI credentials:
