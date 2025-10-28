@@ -40,3 +40,37 @@ Open `src/McpServerAspNetCore/appsettings.json` and update the `OpenWeatherMapAp
     }
 }
 ```
+
+Alternatively, you can create an `appsettings.local.json` file (which is already configured to be ignored by Git) to keep your API key private:
+
+```json
+{
+    "AppSettings": {
+        "OpenWeatherMapAppId": "YOUR_API_KEY_HERE"
+    }
+}
+```
+
+### Azure OpenAI Configuration (for Client Apps)
+
+The sample client applications (`McpClientConsoleApp.ExtensionsAI` and `McpClientConsoleApp.Agents`) use Azure OpenAI to demonstrate how to integrate MCP tools with AI agents. To run these clients, you need to configure your Azure OpenAI credentials:
+
+1. Create an [Azure OpenAI resource](https://portal.azure.com/#create/Microsoft.CognitiveServicesOpenAI) in the Azure Portal
+2. Deploy a GPT model (e.g., GPT-4) from the Azure OpenAI Studio
+3. Get your endpoint URL and API key from the Azure Portal (under "Keys and Endpoint")
+4. Update the `Constants.cs` file in each client project
+
+#### Update Constants.cs
+
+Open `src/McpClientConsoleApp.ExtensionsAI/Constants.cs` (or `src/McpClientConsoleApp.Agents/Constants.cs`) and update the values:
+
+```csharp
+public static class Constants
+{
+    public const string Endpoint = "https://YOUR_RESOURCE_NAME.openai.azure.com/";
+    public const string DeploymentName = "YOUR_DEPLOYMENT_NAME";
+    public const string ApiKey = "YOUR_AZURE_OPENAI_API_KEY";
+}
+```
+
+**Note:** For production applications, consider using Azure Key Vault or environment variables to store these sensitive credentials securely instead of hardcoding them.
