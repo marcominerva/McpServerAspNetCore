@@ -1,24 +1,27 @@
-﻿using System.Text;
-using Azure;
+﻿using Azure;
 using Azure.AI.OpenAI;
 using McpClientConsoleApp.Agents;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Client;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-var azureOpenAIClient = new AzureOpenAIClient(new(Constants.Endpoint), new AzureKeyCredential(Constants.ApiKey));
-var azureChatClient = azureOpenAIClient.GetChatClient(Constants.DeploymentName).AsIChatClient();
-
 // Add the chat client and AI agent to the service collection.
-builder.Services.AddChatClient(azureChatClient);
-builder.Services.AddSingleton<AIAgent>(services => new ChatClientAgent(
-    chatClient: services.GetRequiredService<IChatClient>(),
-    options: new("You are a useful Assistant."),
-    services: services));
+builder.Services.AddSingleton(services =>
+{
+    var azureOpenAIClient = new AzureOpenAIClient(new(Constants.Endpoint), new AzureKeyCredential(Constants.ApiKey));
+    var azureChatClient = azureOpenAIClient.GetChatClient(Constants.DeploymentName).AsIChatClient();
+
+    return azureChatClient.CreateAIAgent(
+        instructions: "You are a useful Assistant.",
+        name: "ChatClientAgent",
+        loggerFactory: services.GetRequiredService<ILoggerFactory>(),
+        services: services);
+});
 
 var transport = new HttpClientTransport(new()
 {
@@ -35,12 +38,8 @@ var tools = await mcpClient.ListToolsAsync();
 
 var app = builder.Build();
 
-var agent = app.Services.GetRequiredService<AIAgent>();
-
-// Without depentency injection.
-//var agent = azureChatClient.CreateAIAgent();
-
-var history = new List<ChatMessage>();
+var agent = app.Services.GetRequiredService<ChatClientAgent>();
+var thread = agent.GetNewThread();
 
 var options = new ChatClientAgentRunOptions(new()
 {
@@ -52,17 +51,11 @@ while (true)
     Console.Write("Question: ");
 
     var question = Console.ReadLine();
-    history.Add(new(ChatRole.User, question!));
 
-    var answer = new StringBuilder();
-
-    await foreach (var update in agent.RunStreamingAsync(history, options: options))
+    await foreach (var update in agent.RunStreamingAsync(question!, thread, options: options))
     {
         Console.Write(update.Text);
-        answer.Append(update.Text);
     }
-
-    history.Add(new(ChatRole.Assistant, answer.ToString()));
 
     Console.WriteLine();
     Console.WriteLine();
