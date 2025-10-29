@@ -31,7 +31,7 @@ public class WeatherTools
         [Description("The number of days for which to return the forecast (from 1 to 16)")] int days,
         [Description("The unit system to use (Metric or Imperial)"), DefaultValue(UnitSystem.Metric)] UnitSystem units = UnitSystem.Metric,
         [Description("The language code for weather descriptions (e.g., 'en', 'es', 'fr'). Infer from user language"), DefaultValue("en")] string language = "en",
-        WeatherService weatherService = null!, ClaimsPrincipal user = null!, ILogger<DateTimeTools> logger = null!, CancellationToken cancellationToken = default)
+        WeatherService weatherService = null!, ClaimsPrincipal user = null!, ILogger<WeatherTools> logger = null!, CancellationToken cancellationToken = default)
     {
         var userName = user.Identity?.Name ?? "Unknown";
         logger.LogInformation("User {UserName} requested local time for city {City}", userName, city);
