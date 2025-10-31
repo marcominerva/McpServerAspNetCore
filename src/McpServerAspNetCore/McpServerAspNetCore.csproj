@@ -14,8 +14,4 @@
     <PackageReference Include="TinyHelpers.AspNetCore" Version="4.1.8" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
-
 </Project>

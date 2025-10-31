@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using System.Text.Json.Serialization;
 using McpServerAspNetCore.Models;
 using McpServerAspNetCore.Services;
@@ -24,15 +23,14 @@ builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
-builder.Services.AddSimpleAuthentication(builder.Configuration)
-    .AddMcp();
+builder.Services.AddSimpleAuthentication(builder.Configuration).AddMcp();
 
 builder.Services.AddMcpServer(options =>
 {
     options.ServerInfo = new() { Name = "MCP Sample Server", Version = "1.0.0" };
     options.ServerInstructions = "You are a helpful assistant that provides weather, date and time information.";
 })
-.AddAuthorizationFilters()
+.AddAuthorizationFilters()  // <-- Enable Authorize attribute in MCP tools
 .WithHttpTransport().WithToolsFromAssembly();   // <-- Tools are defined in the Tools folder in this project
 
 builder.Services.AddCors(options =>
@@ -78,7 +76,7 @@ app.UseAuthorization();
 
 app.MapMcp("/mcp");
 
-app.MapGet("/debug/routes", (IEnumerable<EndpointDataSource> endpointSources, ClaimsPrincipal user) =>
+app.MapGet("/debug/routes", (IEnumerable<EndpointDataSource> endpointSources) =>
 {
     var endpoints = endpointSources.SelectMany(source => source.Endpoints);
     var routes = endpoints.OfType<RouteEndpoint>()
@@ -105,6 +103,7 @@ app.MapGet("/api/weather/daily", async (string city, int days, UnitSystem units 
 {
     var weather = await weatherService.GetWeatherForecastAsync(city, days, units, language, cancellationToken);
     return TypedResults.Ok(weather);
-});
+})
+.RequireAuthorization();
 
 app.Run();
