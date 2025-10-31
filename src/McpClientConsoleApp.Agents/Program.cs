@@ -23,6 +23,8 @@ builder.Services.AddSingleton(services =>
         services: services);
 });
 
+var app = builder.Build();
+
 var transport = new HttpClientTransport(new()
 {
     Endpoint = new("https://localhost:7133/mcp"),
@@ -35,8 +37,6 @@ var transport = new HttpClientTransport(new()
 
 await using var mcpClient = await McpClient.CreateAsync(transport);
 var tools = await mcpClient.ListToolsAsync();
-
-var app = builder.Build();
 
 var agent = app.Services.GetRequiredService<ChatClientAgent>();
 var thread = agent.GetNewThread();
