@@ -3,27 +3,14 @@ using Azure.AI.OpenAI;
 using McpClientConsoleApp.Agents;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Client;
 
-var builder = Host.CreateApplicationBuilder(args);
+var azureOpenAIClient = new AzureOpenAIClient(new(Constants.Endpoint), new AzureKeyCredential(Constants.ApiKey));
+var azureChatClient = azureOpenAIClient.GetChatClient(Constants.DeploymentName).AsIChatClient();
 
-// Add the chat client and AI agent to the service collection.
-builder.Services.AddSingleton(services =>
-{
-    var azureOpenAIClient = new AzureOpenAIClient(new(Constants.Endpoint), new AzureKeyCredential(Constants.ApiKey));
-    var azureChatClient = azureOpenAIClient.GetChatClient(Constants.DeploymentName).AsIChatClient();
-
-    return azureChatClient.CreateAIAgent(
-        instructions: "You are a useful Assistant.",
-        name: "ChatClientAgent",
-        loggerFactory: services.GetRequiredService<ILoggerFactory>(),
-        services: services);
-});
-
-var app = builder.Build();
+var agent = azureChatClient.CreateAIAgent(
+    instructions: "You are a useful Assistant.",
+    name: "ChatClientAgent");
 
 var transport = new HttpClientTransport(new()
 {
@@ -38,12 +25,11 @@ var transport = new HttpClientTransport(new()
 await using var mcpClient = await McpClient.CreateAsync(transport);
 var tools = await mcpClient.ListToolsAsync();
 
-var agent = app.Services.GetRequiredService<ChatClientAgent>();
 var thread = agent.GetNewThread();
 
 var options = new ChatClientAgentRunOptions(new()
 {
-    Tools = [.. tools]
+    //Tools = [.. tools]
 });
 
 while (true)
