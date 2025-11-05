@@ -9,7 +9,7 @@
 
     <ItemGroup>
         <PackageReference Include="Azure.AI.OpenAI" Version="2.1.0" />
-        <PackageReference Include="Microsoft.Agents.AI" Version="1.0.0-preview.251028.1" />
+        <PackageReference Include="Microsoft.Agents.AI" Version="1.0.0-preview.251104.1" />
         <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="9.10.2-preview.1.25552.1" />
         <PackageReference Include="ModelContextProtocol" Version="0.4.0-preview.3" />
     </ItemGroup>
