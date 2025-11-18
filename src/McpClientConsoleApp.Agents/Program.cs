@@ -29,7 +29,7 @@ var thread = agent.GetNewThread();
 
 var options = new ChatClientAgentRunOptions(new()
 {
-    //Tools = [.. tools]
+    Tools = [.. tools]
 });
 
 while (true)
