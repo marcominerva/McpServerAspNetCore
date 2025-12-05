@@ -9,8 +9,8 @@ var azureOpenAIClient = new AzureOpenAIClient(new(Constants.Endpoint), new Azure
 var azureChatClient = azureOpenAIClient.GetChatClient(Constants.DeploymentName).AsIChatClient();
 
 var agent = azureChatClient.CreateAIAgent(
-    instructions: "You are a useful Assistant.",
-    name: "ChatClientAgent");
+    name: "ChatClientAgent",
+    instructions: "You are a useful Assistant.");
 
 var transport = new HttpClientTransport(new()
 {
@@ -29,7 +29,7 @@ var thread = agent.GetNewThread();
 
 var options = new ChatClientAgentRunOptions(new()
 {
-    Tools = [.. tools]
+    Tools = [.. tools]   
 });
 
 while (true)

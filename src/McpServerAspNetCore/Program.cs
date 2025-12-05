@@ -74,8 +74,6 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapMcp("/mcp");
-
 app.MapGet("/debug/routes", (IEnumerable<EndpointDataSource> endpointSources) =>
 {
     var endpoints = endpointSources.SelectMany(source => source.Endpoints);
@@ -105,5 +103,7 @@ app.MapGet("/api/weather/daily", async (string city, int days, UnitSystem units 
     return TypedResults.Ok(weather);
 })
 .RequireAuthorization();
+
+app.MapMcp("/mcp");
 
 app.Run();

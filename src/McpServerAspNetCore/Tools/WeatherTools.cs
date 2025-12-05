@@ -35,7 +35,8 @@ public class WeatherTools
         [Description("Two-letter language code for weather descriptions (e.g., 'en', 'es', 'fr'). Infer from user language"), DefaultValue("en")] string language = "en",
         WeatherService weatherService = null!, ClaimsPrincipal user = null!, ILogger<WeatherTools> logger = null!, CancellationToken cancellationToken = default)
     {
-        logger?.LogInformation("User {User} is requesting weather forecast for city {City} for {Days} days.", user.Identity!.Name, city, days);
+        logger?.LogInformation("User {User} is requesting a {Days}-day weather forecast for city: {City} with units: {Units} and language: {Language}",
+            user?.Identity?.Name ?? "Unknown", days, city, units, language);
 
         var weather = await weatherService.GetWeatherForecastAsync(city, days, units, language, cancellationToken);
         return weather;
