@@ -7,7 +7,7 @@ public class Weather(CurrentWeather weather, UnitSystem units = UnitSystem.Metri
 {
     public string CityName { get; set; } = weather.Name;
 
-    [Description("A single word that describe the condition")]
+    [Description("A single word that describes the condition")]
     public string Condition { get; set; } = weather.Conditions.First().Condition;
 
     public string ConditionIcon { get; set; } = weather.Conditions.First().ConditionIcon;

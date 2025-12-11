@@ -1,16 +1,21 @@
-﻿using Azure;
-using Azure.AI.OpenAI;
+﻿using System.ClientModel;
 using McpClientConsoleApp.Agents;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using ModelContextProtocol.Client;
+using OpenAI;
 
-var azureOpenAIClient = new AzureOpenAIClient(new(Constants.Endpoint), new AzureKeyCredential(Constants.ApiKey));
-var azureChatClient = azureOpenAIClient.GetChatClient(Constants.DeploymentName).AsIChatClient();
+var openAIClient = new OpenAIClient(new ApiKeyCredential(Constants.ApiKey), new() { Endpoint = new(new(Constants.Endpoint), "/openai/v1") });
+var azureChatClient = openAIClient.GetChatClient(Constants.DeploymentName).AsIChatClient();
 
 var agent = azureChatClient.CreateAIAgent(
     name: "ChatClientAgent",
-    instructions: "You are a useful Assistant.");
+    instructions: """
+        You are an assistant that can ONLY answer by using the available functions. For every user question, you MUST invoke a function to answer. 
+        When you identify a function that can answer the user's question but you don't have all the required parameters or inputs needed to call that function, you MUST ask the user to provide the missing information. Be specific about what information is needed and why.
+        If there is NO function that allows you to answer the question, you MUST reply that you don't know the answer or cannot provide the requested information and do NOT provide any other information.
+        Always prioritize asking for missing parameters over declining to answer, as long as there is a relevant function available.
+        """);
 
 var transport = new HttpClientTransport(new()
 {
@@ -29,7 +34,7 @@ var thread = agent.GetNewThread();
 
 var options = new ChatClientAgentRunOptions(new()
 {
-    Tools = [.. tools]   
+    Tools = [.. tools]
 });
 
 while (true)
