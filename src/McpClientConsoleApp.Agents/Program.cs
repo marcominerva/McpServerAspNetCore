@@ -103,7 +103,7 @@ public class McpHttpClientDelegatingHandler(ILogger<McpHttpClientDelegatingHandl
 
         request.Headers.Add("x-client-name", "McpClientConsoleApp.Agents");
         request.Headers.Add("x-client-version", "1.0.0");
-        request.Headers.Add("User-Agent", "McpClientConsoleApp.Agents/1.0.0");
+        request.Headers.UserAgent.Add(new("McpClientConsoleApp.Agents", "1.0.0"));
 
         return base.SendAsync(request, cancellationToken);
     }
