@@ -96,10 +96,10 @@ app.MapGet("/api/weather/current", async (string city, UnitSystem units = UnitSy
     return TypedResults.Ok(response);
 });
 
-app.MapGet("/api/weather/daily", async (string city, int days, UnitSystem units = UnitSystem.Metric, string language = "en",
+app.MapGet("/api/weather/daily", async (string city, int? days, UnitSystem units = UnitSystem.Metric, string language = "en",
     WeatherService weatherService = null!, CancellationToken cancellationToken = default) =>
 {
-    var weather = await weatherService.GetWeatherForecastAsync(city, days, units, language, cancellationToken);
+    var weather = await weatherService.GetWeatherForecastAsync(city, days.GetValueOrDefault(1), units, language, cancellationToken);
     return TypedResults.Ok(weather);
 })
 .RequireAuthorization();
