@@ -21,7 +21,7 @@ builder.Services.AddAIAgent("Default", (services, key) =>
 {
     var chatClient = services.GetRequiredService<IChatClient>();
 
-    return chatClient.CreateAIAgent(
+    return chatClient.AsAIAgent(
         name: key,
         instructions: """
             You are an assistant that can ONLY answer by using the available functions. For every user question, you MUST invoke a function to answer. 
@@ -47,7 +47,7 @@ var mcpClientHandler = app.Services.GetRequiredService<McpClientHandler>();
 var tools = await mcpClientHandler.ListToolsAsync();
 
 var agent = app.Services.GetRequiredKeyedService<AIAgent>("Default");
-var thread = agent.GetNewThread();
+var thread = await agent.GetNewThreadAsync();
 
 var options = new ChatClientAgentRunOptions(new()
 {
