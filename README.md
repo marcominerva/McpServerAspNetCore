@@ -1,12 +1,12 @@
 # MCP Server with ASP.NET Core
 
-Minimal implementation of a Model Context Protocol (MCP) server based on ASP.NET Core and .NET9. The project serves as an example to expose MCP tools to compatible clients, including authentication, automatic discovery, and API documentation.
+Minimal implementation of a Model Context Protocol (MCP) server based on ASP.NET Core 10. The project serves as an example to expose MCP tools to compatible clients, including authentication, automatic discovery, and API documentation.
 
 ## Project purpose
 Provide a simple, ready-to-use starting point to build an MCP server on ASP.NET Core, useful for integrating server-side tools into agents/assistants that speak MCP.
 
 ## Exposed features
-- Framework: ASP.NET Core on .NET 9, minimal configuration ready for extension.
+- Framework: ASP.NET Core 10, minimal configuration ready for extension.
 - Security: access protected via API Key.
 - MCP Tool Discovery: automatic detection/exposure of the server's available MCP tools.
 - OpenAPI/Swagger UI: interface to explore and test the exposed endpoints.

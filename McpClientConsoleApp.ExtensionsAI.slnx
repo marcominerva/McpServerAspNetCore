@@ -1,9 +1,0 @@
-<Solution>
-   <Folder Name="/Solution Items/">
-    <File Path=".editorconfig" />
-      <File Path=".github/copilot-instructions.md" />
-    <File Path="Directory.Build.props" />
-      <File Path="README.md" />
-  </Folder>
-  <Project Path="src/McpClientConsoleApp.ExtensionsAI/McpClientConsoleApp.ExtensionsAI.csproj" />
-</Solution>
