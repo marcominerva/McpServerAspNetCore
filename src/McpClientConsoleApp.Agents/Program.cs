@@ -23,6 +23,7 @@ builder.Services.AddAIAgent("Default", (services, key) =>
 
     return chatClient.AsAIAgent(
         name: key,
+        //instructions: "You are a useful Assistant.",
         instructions: """
             You are an assistant that can ONLY answer by using the available functions. For every user question, you MUST invoke a function to answer. 
             When you identify a function that can answer the user's question but you don't have all the required parameters or inputs needed to call that function, you MUST ask the user to provide the missing information. Be specific about what information is needed and why.
@@ -47,7 +48,7 @@ var mcpClientHandler = app.Services.GetRequiredService<McpClientHandler>();
 var tools = await mcpClientHandler.ListToolsAsync();
 
 var agent = app.Services.GetRequiredKeyedService<AIAgent>("Default");
-var thread = await agent.GetNewThreadAsync();
+var session = await agent.GetNewSessionAsync();
 
 var options = new ChatClientAgentRunOptions(new()
 {
@@ -60,7 +61,7 @@ while (true)
 
     var question = Console.ReadLine();
 
-    await foreach (var update in agent.RunStreamingAsync(question!, thread, options: options))
+    await foreach (var update in agent.RunStreamingAsync(question!, session, options: options))
     {
         Console.Write(update.Text);
     }
