@@ -48,7 +48,7 @@ var mcpClientHandler = app.Services.GetRequiredService<McpClientHandler>();
 var tools = await mcpClientHandler.ListToolsAsync();
 
 var agent = app.Services.GetRequiredKeyedService<AIAgent>("Default");
-var session = await agent.GetNewSessionAsync();
+var session = await agent.CreateSessionAsync();
 
 var options = new ChatClientAgentRunOptions(new()
 {
