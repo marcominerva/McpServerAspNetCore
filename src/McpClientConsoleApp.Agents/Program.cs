@@ -17,21 +17,38 @@ builder.Services.AddChatClient(_ =>
     return openAIClient.GetChatClient(Constants.DeploymentName).AsIChatClient();
 });
 
+//builder.Services.AddAIAgent("Default", (services, key) =>
+//{
+//    var chatClient = services.GetRequiredService<IChatClient>();
+
+//    return chatClient.AsAIAgent(
+//        name: key,
+//        //instructions: "You are a useful Assistant.",
+//        instructions: """
+//            You are an assistant that can ONLY answer by using the available functions. For every user question, you MUST invoke a function to answer. 
+//            When you identify a function that can answer the user's question but you don't have all the required parameters or inputs needed to call that function, you MUST ask the user to provide the missing information. Be specific about what information is needed and why.
+//            If there is NO function that allows you to answer the question, you MUST reply that you don't know the answer or cannot provide the requested information and do NOT provide any other information.
+//            Always prioritize asking for missing parameters over declining to answer, as long as there is a relevant function available.
+//            """,
+//        loggerFactory: services.GetRequiredService<ILoggerFactory>(),
+//        services: services);
+//});
+
 builder.Services.AddAIAgent("Default", (services, key) =>
 {
     var chatClient = services.GetRequiredService<IChatClient>();
 
-    return chatClient.AsAIAgent(
-        name: key,
-        //instructions: "You are a useful Assistant.",
-        instructions: """
-            You are an assistant that can ONLY answer by using the available functions. For every user question, you MUST invoke a function to answer. 
-            When you identify a function that can answer the user's question but you don't have all the required parameters or inputs needed to call that function, you MUST ask the user to provide the missing information. Be specific about what information is needed and why.
-            If there is NO function that allows you to answer the question, you MUST reply that you don't know the answer or cannot provide the requested information and do NOT provide any other information.
-            Always prioritize asking for missing parameters over declining to answer, as long as there is a relevant function available.
-            """,
-        loggerFactory: services.GetRequiredService<ILoggerFactory>(),
-        services: services);
+    var chatHistoryProvider = new InMemoryChatHistoryProvider(new()
+    {
+        ChatReducer = new MessageCountingChatReducer(20),
+        ReducerTriggerEvent = InMemoryChatHistoryProviderOptions.ChatReducerTriggerEvent.AfterMessageAdded,
+    });
+
+    return chatClient.AsAIAgent(new ChatClientAgentOptions
+    {
+        Name = key,
+        ChatHistoryProvider = chatHistoryProvider
+    });
 });
 
 // Register the services that are used to get the MCP tools. In this way, the agent can dynamically discover and use the tools available in the MCP instance
@@ -65,6 +82,8 @@ while (true)
     {
         Console.Write(update.Text);
     }
+
+    session.TryGetInMemoryChatHistory(out var messages);
 
     Console.WriteLine();
     Console.WriteLine();
