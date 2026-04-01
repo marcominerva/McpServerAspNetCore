@@ -9,11 +9,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Agents.AI.Hosting" Version="1.0.0-preview.260311.1" />
-        <PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.0.0-rc4" />
+        <PackageReference Include="Microsoft.Agents.AI.Hosting" Version="1.0.0-preview.260330.1" />
+        <PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.0.0-rc5" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.5" />
         <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="10.4.0" />
-        <PackageReference Include="ModelContextProtocol" Version="1.1.0" />
+        <PackageReference Include="ModelContextProtocol" Version="1.2.0" />
     </ItemGroup>
 
 </Project>

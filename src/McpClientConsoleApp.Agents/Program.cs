@@ -48,7 +48,9 @@ builder.Services.AddAIAgent("Default", (services, key) =>
     {
         Name = key,
         ChatHistoryProvider = chatHistoryProvider
-    });
+    },
+    loggerFactory: services.GetRequiredService<ILoggerFactory>(),
+    services: services);
 });
 
 // Register the services that are used to get the MCP tools. In this way, the agent can dynamically discover and use the tools available in the MCP instance
@@ -82,8 +84,6 @@ while (true)
     {
         Console.Write(update.Text);
     }
-
-    session.TryGetInMemoryChatHistory(out var messages);
 
     Console.WriteLine();
     Console.WriteLine();
