@@ -8,13 +8,14 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Client;
 using OpenAI;
+using OpenAI.Responses;
 
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.Services.AddChatClient(_ =>
 {
-    var openAIClient = new OpenAIClient(new ApiKeyCredential(Constants.ApiKey), new() { Endpoint = new(new(Constants.Endpoint), "/openai/v1") });
-    return openAIClient.GetChatClient(Constants.DeploymentName).AsIChatClient();
+    var openAIClient = new OpenAIClient(new ApiKeyCredential(Constants.ApiKey), new() { Endpoint = new(Constants.Endpoint) });
+    return openAIClient.GetResponsesClient().AsIChatClientWithStoredOutputDisabled(Constants.DeploymentName);
 });
 
 //builder.Services.AddAIAgent("Default", (services, key) =>
