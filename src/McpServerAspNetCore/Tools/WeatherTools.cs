@@ -11,7 +11,7 @@ namespace McpServerAspNetCore.Tools;
 [McpServerToolType]
 public class WeatherTools
 {
-    [McpServerTool(Name = "get_current_weather", Title = "Get Current Weather", UseStructuredContent = true)]
+    [McpServerTool(Name = "get_current_weather", Title = "Get Current Weather", UseStructuredContent = true, Idempotent = true, ReadOnly = true)]
     [Description("Get the current weather condition. This is the method to get weather of today")]
     [McpMeta("category", "Weather")]
     public static async Task<Weather> GetCurrentWeatherAsync([Description("The city for which to get the current weather condition")] string city,
@@ -25,7 +25,7 @@ public class WeatherTools
         return response;
     }
 
-    [McpServerTool(Name = "get_weather_forecast", Title = "Get Weather Forecast", UseStructuredContent = true)]
+    [McpServerTool(Name = "get_weather_forecast", Title = "Get Weather Forecast", UseStructuredContent = true, Idempotent = true, ReadOnly = true)]
     [Description("Get the weather condition for the next days. If you want to get the current condition, invoke the get_current_weather tool")]
     [McpMeta("category", "Weather")]
     [Authorize]

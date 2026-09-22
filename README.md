@@ -13,7 +13,7 @@ Provide a simple, ready-to-use starting point to build an MCP server on ASP.NET 
 - CORS: enabled/configurable to allow access from secure external origins.
 - Example server-side tools:
  - Weather: retrieve weather conditions for a location.
- - Time: get current date and time (e.g., for a specific time zone).
+ - Time: get current date and time.
 
 These features make it possible to connect an MCP client and automatically discover/consume the tools published by the server, with support for security, documentation, and interoperability.
 

@@ -1,5 +1,5 @@
 ﻿using System.ClientModel;
-using McpClientConsoleApp.Agents;
+using McpClientConsoleApp;
 using Microsoft.Agents.AI;
 using Microsoft.Agents.AI.Hosting;
 using Microsoft.Extensions.AI;
@@ -86,6 +86,8 @@ while (true)
         Console.Write(update.Text);
     }
 
+    session.TryGetInMemoryChatHistory(out var messages);
+
     Console.WriteLine();
     Console.WriteLine();
 }
@@ -101,7 +103,7 @@ public class McpClientHandler
         // In real scenarios, the endpoint and other configurations would be dynamic or configurable.
         httpClientTransport = new HttpClientTransport(new()
         {
-            Endpoint = new("https://localhost:7133/mcp"),
+            Endpoint = new("https://localhost:7133/mcp"), //new("https://localhost:44378/mcp"),
             Name = "Test MCP client"
         }, httpClient, loggerFactory);
     }
@@ -120,11 +122,11 @@ public class McpHttpClientDelegatingHandler(ILogger<McpHttpClientDelegatingHandl
         // This method can be used to add authentication headers or other necessary information to every MCP requests.
         logger.LogInformation("Adding Authentication information to request for Url {Uri}...", request.RequestUri);
 
-        request.Headers.Add("x-api-key", "f1I7S5GXa4wQDgLQWgz0");
+        request.Headers.Add("x-api-key", "42");
 
-        request.Headers.Add("x-client-name", "McpClientConsoleApp.Agents");
+        request.Headers.Add("x-client-name", "McpClientConsoleApp");
         request.Headers.Add("x-client-version", "1.0.0");
-        request.Headers.UserAgent.Add(new("McpClientConsoleApp.Agents", "1.0.0"));
+        request.Headers.UserAgent.Add(new("McpClientConsoleApp", "1.0.0"));
 
         return base.SendAsync(request, cancellationToken);
     }
