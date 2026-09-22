@@ -86,8 +86,6 @@ while (true)
         Console.Write(update.Text);
     }
 
-    session.TryGetInMemoryChatHistory(out var messages);
-
     Console.WriteLine();
     Console.WriteLine();
 }
