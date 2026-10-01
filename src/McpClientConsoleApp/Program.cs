@@ -120,7 +120,7 @@ public class McpHttpClientDelegatingHandler(ILogger<McpHttpClientDelegatingHandl
         // This method can be used to add authentication headers or other necessary information to every MCP requests.
         logger.LogInformation("Adding Authentication information to request for Url {Uri}...", request.RequestUri);
 
-        request.Headers.Add("x-api-key", "42");
+        request.Headers.Add("x-api-key", "f1I7S5GXa4wQDgLQWgz0");
 
         request.Headers.Add("x-client-name", "McpClientConsoleApp");
         request.Headers.Add("x-client-version", "1.0.0");
