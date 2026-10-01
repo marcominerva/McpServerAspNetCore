@@ -47,6 +47,7 @@ builder.Services.AddAIAgent("Default", (services, key) =>
 
     return chatClient.AsAIAgent(new ChatClientAgentOptions
     {
+        Id = key.ToLowerInvariant(),
         Name = key,
         ChatHistoryProvider = chatHistoryProvider
     },
